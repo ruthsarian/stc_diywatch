@@ -73,7 +73,7 @@ This project is based on the [stc_diyclock](https://github.com/zerog2k/stc_diycl
 This code is provided as-is, with NO guarantees or liabilities.
 As the original firmware loaded on an STC MCU cannot be downloaded or backed up, it cannot be restored. If you are not comfortable with experimenting, I suggest obtaining another blank STC MCU and using this to test, so that you can move back to original firmware, if desired.
 
-### References
+## References
 * [Jen Jensen's stc_diyclock project](https://github.com/zerog2k/stc_diyclock)
 * [STC15F204EA datasheet](http://www.stcmcu.com/datasheet/stc/stc-ad-pdf/stc15f204ea-series-english.pdf)
 * [Maxim DS1302 datasheet](http://datasheets.maximintegrated.com/en/ds/DS1302.pdf)
