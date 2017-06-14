@@ -1,4 +1,4 @@
-# STC DIY Watch Kit firmware
+# STC DIY Watch Kit Firmware
 
 **NOTE: This project is in development and not yet functional.**
 
@@ -7,11 +7,10 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 ![Image of Banggood SKU 206204](https://img3.banggood.com/thumb/view/2014/xiemeijuan/05/SKU206204/SKU206204a.jpg)
 
 ## Features
-* Nothing yet. 
+* Display for 5 seconds, then go into power down mode until button 1 is pressed. This is to conserve battery power and is similar functionality to the original firmware.
 
 ## Features To Add
 * Set and read date and time from RTC chip.
-* Display time for N seconds when button 1 is pressed, then power down to conserve battery power.
 * Set and display time in 12 or 24 hour format
 * Set and display the day and month
 
