@@ -1,12 +1,10 @@
 # STC DIY Watch Kit firmware
 
-**note this project in development and a work-in-progress**
+**NOTE: This project is in development and not yet functional.**
 
-This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through Bangood and eBay). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
+This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through [Banggood](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html) and [eBay](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=scm+diy+led+watch+kit&_sop=15)). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
 
 ![Image of Banggood SKU 206204](https://img3.banggood.com/thumb/view/2014/xiemeijuan/05/SKU206204/SKU206204a.jpg)
-
-[link to Banggood product page for SKU 206204](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html)
 
 ## Features
 * Nothing yet. 
@@ -35,7 +33,7 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 * [sdcc](http://sdcc.sf.net) installed and in the path (recommend sdcc >= 3.5.0)
 * [sdcc](http://sdcc.sf.net) (or optionally stc-isp). Note you can either do "git clone --recursive ..." when you check this repo out, or do "git submodule update --init --recursive" in order to fetch stcgal.
 
-## usage
+## Usage
 ```
 make clean
 make
@@ -45,7 +43,6 @@ make flash
 ## Options
 * Override default serial port:
 `STCGALPORT=/dev/ttyUSB0 make flash`
-
 * Add other options:
 `STCGALOPTS="-l 9600 -b 9600" make flash`
 
@@ -77,13 +74,8 @@ This code is provided as-is, with NO guarantees or liabilities.
 As the original firmware loaded on an STC MCU cannot be downloaded or backed up, it cannot be restored. If you are not comfortable with experimenting, I suggest obtaining another blank STC MCU and using this to test, so that you can move back to original firmware, if desired.
 
 ### References
-http://www.stcmcu.com (mostly in Chinese)
-
-STC15F204EA english datasheet:
-http://www.stcmcu.com/datasheet/stc/stc-ad-pdf/stc15f204ea-series-english.pdf
-
-sdcc user guide:
-http://sdcc.sourceforge.net/doc/sdccman.pdf
-
-Maxim DS1302 datasheet:
-http://datasheets.maximintegrated.com/en/ds/DS1302.pdf
+* [Jen Jensen's stc_diyclock project](https://github.com/zerog2k/stc_diyclock)
+* [STC15F204EA datasheet](http://www.stcmcu.com/datasheet/stc/stc-ad-pdf/stc15f204ea-series-english.pdf)
+* [Maxim DS1302 datasheet](http://datasheets.maximintegrated.com/en/ds/DS1302.pdf)
+* [sdcc user guide](http://sdcc.sourceforge.net/doc/sdccman.pdf)
+* [stcgal](https://github.com/grigorig/stcgal)
