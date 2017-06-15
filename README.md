@@ -8,9 +8,10 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 
 ## Features
 * Display for 5 seconds, then go into power down mode until button 1 is pressed. This is to conserve battery power and is similar functionality to the original firmware.
+* Read date and time from DS1302 RTC chip.
 
 ## Features To Add
-* Set and read date and time from RTC chip.
+* Set date and time from RTC chip.
 * Set and display time in 12 or 24 hour format
 * Set and display the day and month
 
