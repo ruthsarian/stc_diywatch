@@ -75,9 +75,9 @@ void sys_init(void)
 	// setup display refresh timer
 	TL0 = 0xA4;		// Initial timer value
 	TH0 = 0xFF;		// Initial timer value
-    TF0 = 0;		// Clear TF0 flag
-    TR0 = 1;		// Timer0 start run
-    ET0 = 1;        // enable timer0 interrupt
+	TF0 = 0;		// Clear TF0 flag
+	TR0 = 1;		// Timer0 start run
+	ET0 = 1;		// enable timer0 interrupt
 
 	// enable interrupts
 	EA  = 1;
@@ -95,11 +95,12 @@ void timer0_isr() __interrupt (1) __using (1)
 	// turn off all digits (logic low)
 	P3 &= 0x0F;
 
-	// turn off all segments (logic high)
-	P1 = 0xFF;
-
 	// test whether or not it's time to update the display
 	if (display_refresh_counter % display_refresh_rate < 4 ) {
+
+		// reset segments to all off
+		//P1 = 0xFF;
+
 		// enable appropriate segment PINs (logic low)
 		P1 = dbuf[digit];
 
