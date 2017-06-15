@@ -10,7 +10,6 @@ STCGALPROT ?= stc15a
 FLASHFILE ?= main.hex
 SYSCLK ?= 11059
 
-#SRC = src/adc.c src/ds1302.c
 SRC = src/ds1302.c
 
 OBJ = $(patsubst src%.c,build%.rel, $(SRC))
