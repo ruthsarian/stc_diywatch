@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "stc15.h"
 #include "led.h"
+#include "ds1302.h"
 
 // so said EVELYN the modified DOG
 #pragma less_pedantic
@@ -25,7 +26,7 @@ unsigned char is_power_down = 0;
 //		Every N loops of the display update routine, the display will be updated over the next 4 loops.
 //		The higher this value, the dimmer the LED display will be.
 //		The display routine will execute about every 100 microseconds. 
-uint8_t display_refresh_rate = 250;
+#define display_refresh_rate 20
 
 // counter used to maintain which LED to update
 volatile uint8_t display_refresh_counter = 0;
@@ -34,7 +35,58 @@ volatile uint8_t display_refresh_counter = 0;
 uint16_t display_show_counter = 0;
 
 // how many seconds to the display before the MCU goes into power down mode
-uint8_t display_show_seconds = 5;
+#define display_show_seconds 50
+
+// flag to determine when to display the colon
+volatile __bit  display_colon = 0;
+
+// keyboard mode states
+enum keyboard_mode {
+	K_NORMAL,
+	K_WAIT_S1,
+	K_WAIT_S2,
+	K_SET_HOUR,
+	K_SET_MINUTE,
+	K_SET_HOUR_12_24,
+	K_SEC_DISP,
+	K_DATE_DISP,
+	K_DATE_SWDISP,
+	K_SET_MONTH,
+	K_SET_DAY,
+	K_WEEKDAY_DISP,
+	K_DEBUG
+};
+
+// display mode states
+enum display_mode {
+	M_NORMAL,
+	M_SET_HOUR_12_24,
+	M_SEC_DISP,
+	M_DATE_DISP,
+	M_WEEKDAY_DISP,
+	M_DEBUG
+};
+
+// variables to manage state of the watch
+uint8_t	dmode = M_NORMAL;
+uint8_t	kmode = K_NORMAL;
+
+// button aliases
+#define SW1 P3_3
+#define SW2 P3_1
+
+// button debounce
+volatile uint8_t debounce[2] = {0, 0};
+
+// long button press detection
+volatile uint8_t switchcount[2] = {0, 0};
+#define SW_CNTMAX 100
+
+// button states
+volatile __bit  S1_LONG;
+volatile __bit  S1_PRESSED;
+volatile __bit  S2_LONG;
+volatile __bit  S2_PRESSED;
 
 // delay by milliseconds
 void _delay_ms(uint8_t ms)
@@ -67,6 +119,8 @@ void sys_init(void)
 	// P1M1 = 0x00;		// default value after power-on or reset
 
 	// clock initialization
+	ds_init();
+	ds_ram_config_init();
 
 	// setup INT1 to pull system out of power down mode
 	IT1 = 0;	// set INT1 (SW1) to trigger interrupt when pulled low
@@ -83,9 +137,13 @@ void sys_init(void)
 	EA  = 1;
 }
 
-// Display refresh (Timer0) routine
+// timer to manage display refresh and button press detection
 void timer0_isr() __interrupt (1) __using (1)
 {
+	//
+	// DISPLAY REFRESH
+	//
+
 	// which digit to update
 	uint8_t digit = display_refresh_counter % 4;
 
@@ -109,6 +167,27 @@ void timer0_isr() __interrupt (1) __using (1)
 	}
 
 	display_refresh_counter++;
+
+	//
+	// BUTTON PRESS DETECTION
+	//
+
+	// is the button down?
+	S1_PRESSED = debounce[0] == 0x00 ? 1 : 0;
+	S2_PRESSED = debounce[1] == 0x00 ? 1 : 0;
+
+	// keep track of how long the button has been pressed
+	switchcount[0] = S1_PRESSED ? (switchcount[0] > SW_CNTMAX ? SW_CNTMAX : switchcount[0]+1) : 0;
+	switchcount[1] = S1_PRESSED ? (switchcount[1] > SW_CNTMAX ? SW_CNTMAX : switchcount[1]+1) : 0;
+
+	// flag that the button has been held down a long time
+	S1_LONG = switchcount[0] == SW_CNTMAX ? 1 : 0;
+	S2_LONG = switchcount[1] == SW_CNTMAX ? 1 : 0;
+
+	// read button states into sliding 8-bit window
+	// buttons are active low
+	debounce[0] = (debounce[0] << 1) | SW1;
+	debounce[1] = (debounce[1] << 1) | SW2;
 }
 
 void INT1_routine(void) __interrupt (2) // INT0 = interrupt 0; Timer0 = interrupt 1; INT1 = interrupt 2;
@@ -125,6 +204,8 @@ void INT1_routine(void) __interrupt (2) // INT0 = interrupt 0; Timer0 = interrup
 
 void main(void)
 {
+	uint8_t tens_hour;
+
 	// setup the system
 	sys_init();
 
@@ -158,21 +239,57 @@ void main(void)
 			display_show_counter = 0;
 		}
 
-		// update clock data
-		// does the DS1302 have some kind of lowe power mode as well?  
+		// read clock data
+		ds_readburst();
+
+		// control when the colon should blink: ever other second
+		display_colon = rtc_table[DS_ADDR_SECONDS]&DS_MASK_SECONDS_UNITS % 2;
 
 		// input detection
 
-		// action (based on detected input; if any)
+
+
+
+		// manage actions based on button input, if any
+		switch (kmode) {
+			case K_DEBUG:
+				dmode = M_DEBUG;
+				if (S1_PRESSED) {
+					kmode = K_NORMAL;
+				}
+				break;
+
+			case K_NORMAL:
+			default:
+				dmode = M_NORMAL;
+				if (S2_PRESSED) {
+					kmode = K_DEBUG;
+				}
+				break;
+		}
 
 		// clear temporary display buffer
 		clearTmpDisplay();
 
-		// update content of temporary display buffer
-		filldisplay(0, (display_show_counter / 10000) % 10, 0);
-		filldisplay(1, (display_show_counter / 1000)  % 10, 0);
-		filldisplay(2, (display_show_counter / 100)   % 10, 0);
-		filldisplay(3, (display_show_counter / 10)    % 10, 0);
+		// based on current display state of watch, update temporary buffer
+		switch (dmode) {
+
+			case M_DEBUG:
+				filldisplay(0, (display_show_counter / 10000) % 10, 0);
+				filldisplay(1, (display_show_counter / 1000)  % 10, 0);
+				filldisplay(2, (display_show_counter / 100)   % 10, 0);
+				filldisplay(3, (display_show_counter / 10)    % 10, 0);
+				break;
+
+			case M_NORMAL:
+			default:
+				tens_hour = (rtc_table[DS_ADDR_HOUR]>>4)&(DS_MASK_HOUR24_TENS>>4);
+				filldisplay( 0, (tens_hour<1?LED_BLANK:tens_hour), 0);
+				filldisplay( 1, rtc_table[DS_ADDR_HOUR]&DS_MASK_HOUR_UNITS, display_colon);
+				filldisplay( 2, (rtc_table[DS_ADDR_MINUTES]>>4)&(DS_MASK_MINUTES_TENS>>4), 0);
+				filldisplay( 3, rtc_table[DS_ADDR_MINUTES]&DS_MASK_MINUTES_UNITS, 0);
+				break;
+		}
 
 		// copy temporary display buffer to display buffer
 		__critical { updateTmpDisplay(); }
