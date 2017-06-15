@@ -98,18 +98,14 @@ void timer0_isr() __interrupt (1) __using (1)
 	// turn off all segments (logic high)
 	P1 = 0xFF;
 
-
 	// test whether or not it's time to update the display
 	if (display_refresh_counter % display_refresh_rate < 4 ) {
 		// enable appropriate segment PINs (logic low)
 		P1 = dbuf[digit];
-//P1 = ledtable[digit];
-		
 
 		// enable the digit (logic high)
 		P3 |= (0x10 << digit);
 	}
-
 
 	display_refresh_counter++;
 }
@@ -162,7 +158,7 @@ void main(void)
 		}
 
 		// update clock data
-		// i don't think the rtc chip needs to be reinitialized; does it have a low-power mode too?
+		// does the DS1302 have some kind of lowe power mode as well?  
 
 		// input detection
 
