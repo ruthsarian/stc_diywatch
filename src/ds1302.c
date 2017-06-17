@@ -250,17 +250,28 @@ void ds_weekday_incr() {
 */
 
 void ds_set_day_of_week() {
-	uint8_t day  	= ds_split2int(rtc_table[DS_ADDR_DAY]&DS_MASK_DAY);
-	uint8_t month	= ds_split2int(rtc_table[DS_ADDR_MONTH]&DS_MASK_MONTH);
-	uint8_t year	= ds_split2int(rtc_table[DS_ADDR_YEAR]&DS_MASK_YEAR);
 
-	// zeller's rule (f = k + [(13*m-1)/5] + D + [D/4] + [C/4] - 2*C)
-	uint8_t f = (month + ((13*month-1)/5) + year + (year/4) - 35) % 7;
-	if (f > 127) f += 7;
-	f++;
+	// Zeller's congruence
+	// https://en.wikipedia.org/wiki/Zeller%27s_congruence
+
+	uint8_t q = ds_split2int(rtc_table[DS_ADDR_DAY]&DS_MASK_DAY);
+	uint8_t m = ds_split2int(rtc_table[DS_ADDR_MONTH]&DS_MASK_MONTH);
+	uint8_t K = ds_split2int(rtc_table[DS_ADDR_YEAR]&DS_MASK_YEAR);
+	uint8_t J = 20;
+	uint8_t h;
+
+	if (m < 3) {
+		m += 12;
+		K--;
+	}
+
+	h = q + (13*(m+1))/5 + K + (K/4) + (J/4) + (6 * J);
+	h %= 7;
+
+	h++;
 
 	// 1 = Sunday
-	ds_writebyte(DS_ADDR_WEEKDAY, ds_int2bcd(f));
+	ds_writebyte(DS_ADDR_WEEKDAY, h);
 }
 
 /*
