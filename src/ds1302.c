@@ -260,17 +260,20 @@ void ds_set_day_of_week() {
 	uint8_t J = 20;
 	uint8_t h;
 
+	// Jan & Feb need to be treated as months 13 and 14 of the previous year
 	if (m < 3) {
 		m += 12;
 		K--;
 	}
 
+	// the meat and potatoes
 	h = q + (13*(m+1))/5 + K + (K/4) + (J/4) + (6 * J);
 	h %= 7;
 
+	// in Zeller's congruence Sunday = 0
+	// the DS1302 does use 0, so increment result by 1; thus Sunday = 1
 	h++;
 
-	// 1 = Sunday
 	ds_writebyte(DS_ADDR_WEEKDAY, h);
 }
 
