@@ -217,8 +217,6 @@ void INT1_routine(void) __interrupt (2)
 {
 	if (is_power_down) {
 		is_power_down = 0;
-		// some kind of debounce is needed here
-		// while ( P3_3 == 0) {}
 	}
 }
 
@@ -328,7 +326,8 @@ void main(void)
 			// disable external interrupt; so we can use it as a regular button
 			EX1 = 0;
 
-			// i find without this, wakeup button immediately changes modes. 
+			// this seems to prevent coming out of sleep and going right into
+			// display date mode. 
 			_delay_ms(100);
 
 			// start back up in time mode
