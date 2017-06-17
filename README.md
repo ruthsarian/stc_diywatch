@@ -11,9 +11,9 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 * Display time, month/day, year, and day of week.
 * Set time, day, month, and year. Day of week is calculated automatically.
 * Option to display time in 12 or 24 hour format.
+* Day of week as letter abbreviation.
 
 ## Features To Add
-* Day of week as letter abbreviation.
 * Scrolling message (set in code).
 * Change display brightness.
 
