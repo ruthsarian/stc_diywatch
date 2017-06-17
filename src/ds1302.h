@@ -138,8 +138,13 @@ void ds_month_incr();
 // increment day
 void ds_day_incr();
 
-void ds_weekday_incr();
-void ds_sec_zero();
+void ds_year_incr();
+
+//void ds_weekday_incr();
+
+void ds_set_day_of_week();
+
+//void ds_sec_zero();
     
 // split bcd to int
 uint8_t ds_split2int(uint8_t tens_ones);

@@ -142,6 +142,7 @@ void ds_reset_clock() {
     ds_writebyte(DS_ADDR_HOUR,  DS_MASK_AMPM_MODE|0x07);
     ds_writebyte(DS_ADDR_MONTH, 0x01);
     ds_writebyte(DS_ADDR_DAY,   0x01);
+	ds_set_day_of_week();
 }
     
 void ds_hours_12_24_toggle() {
@@ -211,6 +212,7 @@ void ds_month_incr() {
     else
         month = 1;
     ds_writebyte(DS_ADDR_MONTH, ds_int2bcd(month));
+	ds_set_day_of_week();
 }
 
 // increment day
@@ -221,8 +223,21 @@ void ds_day_incr() {
     else
         day = 1;
     ds_writebyte(DS_ADDR_DAY, ds_int2bcd(day));
+	ds_set_day_of_week();
 }
 
+// increment year
+void ds_year_incr() {
+	uint8_t year = ds_split2int(rtc_table[DS_ADDR_YEAR]&DS_MASK_YEAR);
+	if (year < 99)
+		year++;
+	else
+		year = 0;
+	ds_writebyte(DS_ADDR_YEAR, ds_int2bcd(year));
+	ds_set_day_of_week();
+}
+
+/*
 void ds_weekday_incr() {
     uint8_t day = rtc_table[DS_ADDR_WEEKDAY];
     if (day < 7)
@@ -232,11 +247,28 @@ void ds_weekday_incr() {
     ds_writebyte(DS_ADDR_WEEKDAY, day);
     rtc_table[DS_ADDR_WEEKDAY] = day;		// usefull ?
 }
+*/
 
+void ds_set_day_of_week() {
+	uint8_t day  	= ds_split2int(rtc_table[DS_ADDR_DAY]&DS_MASK_DAY);
+	uint8_t month	= ds_split2int(rtc_table[DS_ADDR_MONTH]&DS_MASK_MONTH);
+	uint8_t year	= ds_split2int(rtc_table[DS_ADDR_YEAR]&DS_MASK_YEAR);
+
+	// zeller's rule (f = k + [(13*m-1)/5] + D + [D/4] + [C/4] - 2*C)
+	uint8_t f = (month + ((13*month-1)/5) + year + (year/4) - 35) % 7;
+	if (f > 127) f += 7;
+	f++;
+
+	// 1 = Sunday
+	ds_writebyte(DS_ADDR_WEEKDAY, ds_int2bcd(f));
+}
+
+/*
 void ds_sec_zero() {
     rtc_table[DS_ADDR_SECONDS]=0;
     ds_writebyte(DS_ADDR_SECONDS,0);
 }
+*/
     
 uint8_t ds_split2int(uint8_t tens_ones) {
     return (tens_ones>>4) * 10 + (tens_ones&0xF);

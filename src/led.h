@@ -7,15 +7,17 @@
 #define LED_D		0x0D
 #define LED_E		0x0E
 #define LED_F		0x0F
-#define LED_H		0x12
 #define LED_BLANK	0x10
 #define LED_DASH	0x11
+#define LED_h		0x12
 #define LED_DP		0x13
+#define LED_r		0x14
 
 const uint8_t __at (0x1000) ledtable[] 
 = {
 	// digit to led digit lookup table
 	// dp,g,f,e,d,c,b,a
+	// 0 = on, 1 = off
 	0b11000000, // 0
 	0b11111001, // 1
 	0b10100100, // 2
@@ -36,6 +38,9 @@ const uint8_t __at (0x1000) ledtable[]
 	0b10111111, // 0x11 - '-'
 	0b10001011, // 0x12 - 'h'
 	0b01111111, // 0x13 - '.'
+	0b10101111, // 0x14 - 'r'
+	0b10001001, // 0x15 - 'H'
+	0b11000110, // 0x16 - 'C'
 };
 
 uint8_t	dbuf[4];

@@ -1,19 +1,26 @@
 # STC DIY Watch Kit Firmware
 
-**NOTE: This project is in development and not yet functional.**
+**NOTE: This project is in development and not fully tested. Expect bugs.**
 
 This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through [Banggood](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html) and [eBay](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=scm+diy+led+watch+kit&_sop=15)). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
 
 ![Image of Banggood SKU 206204](https://img3.banggood.com/thumb/view/2014/xiemeijuan/05/SKU206204/SKU206204a.jpg)
 
 ## Features
-* Display for 5 seconds, then go into power down mode until button 1 is pressed. This is to conserve battery power and is similar functionality to the original firmware.
-* Read date and time from DS1302 RTC chip.
+* Display for 5 seconds, then go into power down mode until the left button is pressed. This helps preserve battery power.
+* Display time, month/day, year, and day of week.
+* Set time, day, month, and year. Day of week is calculated automatically.
+* Option to display time in 12 or 24 hour format.
 
 ## Features To Add
-* Set date and time from RTC chip.
-* Set and display time in 12 or 24 hour format
-* Set and display the day and month
+* Day of week as letter abbreviation.
+* Scrolling message (set in code).
+* Change display brightness.
+
+## How to Use the Watch
+* A short press of left button cycles through the display modes (time, day/month, year, day of week)
+* A long press of the left button will enter the change value mode and is indicated by blinking numbers.
+* The right button is used to increment the value that is blinking. A short press increments by one. Press and hold the button to increment quickly.
 
 ## Hardware
 
