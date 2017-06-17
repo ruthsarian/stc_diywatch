@@ -291,6 +291,7 @@ void change_kmode(keyboard_mode_t new_kmode) {
 void main(void)
 {
 	uint8_t tens_hour;
+	uint8_t day_abbr[3];
 
 	// setup the system
 	sys_init();
@@ -569,9 +570,56 @@ void main(void)
 		switch (dmode) {
 
 			case M_WEEKDAY_DISP:
-				filldisplay( 1, LED_DASH, 0);
-				filldisplay( 2, rtc_table[DS_ADDR_WEEKDAY], 0);		//weekday ( &MASK_UNITS useless, all MSBs are '0')
-				filldisplay( 3, LED_DASH, 0);
+				switch(rtc_table[DS_ADDR_WEEKDAY]) {
+					case 1:
+						day_abbr[0] = LED_S;
+						day_abbr[1] = LED_u;
+						day_abbr[2] = LED_n;
+						break;
+					case 2:
+						day_abbr[0] = LED_M;
+						day_abbr[1] = LED_o;
+						day_abbr[2] = LED_n;
+						break;
+					case 3:
+						day_abbr[0] = LED_t;
+						day_abbr[1] = LED_u;
+						day_abbr[2] = LED_E;
+						break;
+					case 4:
+						day_abbr[0] = LED_W;
+						day_abbr[1] = LED_E;
+						day_abbr[2] = LED_d;
+						break;
+					case 5:
+						day_abbr[0] = LED_t;
+						day_abbr[1] = LED_h;
+						day_abbr[2] = LED_u;
+						break;
+					case 6:
+						day_abbr[0] = LED_F;
+						day_abbr[1] = LED_r;
+						day_abbr[2] = LED_i;
+						break;
+					case 7:
+						day_abbr[0] = LED_S;
+						day_abbr[1] = LED_A;
+						day_abbr[2] = LED_t;
+						break;
+					default:
+						day_abbr[0] = LED_DASH;
+						day_abbr[1] = rtc_table[DS_ADDR_WEEKDAY];
+						day_abbr[2] = LED_DASH;
+						break;
+				}
+				filldisplay( 1, day_abbr[0], 0);
+				filldisplay( 2, day_abbr[1], 0);	//weekday ( &MASK_UNITS useless, all MSBs are '0')
+				filldisplay( 3, day_abbr[2], 0);
+			
+//				filldisplay(1, LED_DASH, 0);
+//				filldisplay(2, rtc_table[DS_ADDR_WEEKDAY], 0);
+//				filldisplay(3, LED_DASH, 0);
+			
 				break;
 
 			case M_YEAR_DISP:

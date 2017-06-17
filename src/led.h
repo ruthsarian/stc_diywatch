@@ -2,9 +2,9 @@
 
 // index into ledtable[]
 #define LED_A		0x0A
-#define LED_B		0x0B
+#define LED_b		0x0B
 #define LED_C		0x0C
-#define LED_D		0x0D
+#define LED_d		0x0D
 #define LED_E		0x0E
 #define LED_F		0x0F
 #define LED_BLANK	0x10
@@ -12,6 +12,17 @@
 #define LED_h		0x12
 #define LED_DP		0x13
 #define LED_r		0x14
+#define LED_H		0x15
+#define LED_o		0x16
+#define LED_l		0x01
+#define LED_n		0x17
+#define LED_M		0x18
+#define LED_t		0x19
+#define LED_u		0x1A
+#define LED_S		0x1B
+#define LED_W		0x1C
+#define LED_L		0x1D
+#define LED_i		0x1E
 
 const uint8_t __at (0x1000) ledtable[] 
 = {
@@ -40,7 +51,15 @@ const uint8_t __at (0x1000) ledtable[]
 	0b01111111, // 0x13 - '.'
 	0b10101111, // 0x14 - 'r'
 	0b10001001, // 0x15 - 'H'
-	0b11000110, // 0x16 - 'C'
+	0b10100011, // 0x16 - 'o'
+	0b10101011, // 0x17 - 'n'
+	0b11101010, // 0x18 - 'M'
+	0b10000111, // 0x19 - 't'
+	0b11100011, // 0x1A - 'u'
+	0b10010010, // 0x1B - 'S'
+	0b11010101, // 0x1C - 'W'
+	0b11000111, // 0x1D - 'L'
+	0b11111011, // 0x1E - 'i'
 };
 
 uint8_t	dbuf[4];
