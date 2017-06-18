@@ -12,15 +12,16 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 * Set time, day, month, and year. Day of week is calculated automatically.
 * Option to display time in 12 or 24 hour format.
 * Day of week as letter abbreviation.
+* Secret scrolling message.
 
 ## Features To Add
-* Scrolling message (set in code).
-* Change display brightness.
+* Change display brightness. (low priority; maybe store value in clock ram?)
 
 ## How to Use the Watch
 * A short press of left button cycles through the display modes (time, day/month, year, day of week)
 * A long press of the left button will enter the change value mode and is indicated by blinking numbers.
 * The right button is used to increment the value that is blinking. A short press increments by one. Press and hold the button to increment quickly.
+* While displaying the current time, hold both buttons down to display the secret message.
 
 ## Hardware
 
