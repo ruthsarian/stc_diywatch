@@ -56,6 +56,7 @@ typedef enum {
 	K_YEAR_DISP,
 	K_SET_YEAR,
 	K_WEEKDAY_DISP,
+	K_MESSAGE_DISP,
 	K_DEBUG
 } keyboard_mode_t;
 
@@ -66,6 +67,7 @@ typedef enum {
 	M_DATE_DISP,
 	M_YEAR_DISP,
 	M_WEEKDAY_DISP,
+	M_MESSAGE_DISP,
 	M_DEBUG
 } display_mode_t;
 
@@ -94,6 +96,32 @@ volatile __bit  S2_PRESSED = 0;
 volatile __bit  S2_LONG = 0;
 volatile __bit	S2_READY = 0;
 volatile __bit	S2_READY_PRESSED = 0;
+
+// secret message displayed when both buttons are pressed
+uint8_t secret_msg[] = { 
+	LED_r,
+	LED_u,
+	LED_t,
+	LED_h,
+	LED_S,
+	LED_A,
+	LED_r,
+	LED_i,
+	LED_A,
+	LED_n,
+	LED_BLANK,
+	LED_W,
+	LED_A,
+	LED_S,
+	LED_BLANK,
+	LED_H,
+	LED_E,
+	LED_r,
+	LED_E
+};
+
+// higher value = slower scroll
+#define MSG_SCROLL_SPEED 4
 
 // delay by milliseconds
 void _delay_ms(uint8_t ms)
@@ -290,8 +318,14 @@ void change_kmode(keyboard_mode_t new_kmode) {
 
 void main(void)
 {
-	uint8_t tens_hour;
-	uint8_t day_abbr[3];
+	uint8_t gp_int1 = 0,	// general purpose integers
+	        gp_int2 = 0,
+			gp_int3 = 0;	
+	uint8_t disp_buf[4];	// secondary display buffer
+	uint8_t msg_pos = 0;	// track message position
+
+	// size of message
+	uint8_t msg_len = sizeof(secret_msg)/sizeof(secret_msg[0]);
 
 	// setup the system
 	sys_init();
@@ -394,13 +428,10 @@ void main(void)
 
 			case K_SET_HOUR_12_24:
 				dmode = M_SET_HOUR_12_24;
-
 				button_ready_check();
-
 				if (S1_READY_PRESSED && (S1_LONG || !S1_PRESSED) && !S2_PRESSED) {
 					change_kmode(K_NORMAL);
 				} 
-
 				if (S2_READY && S2_PRESSED && !S1_PRESSED) {
 					ds_hours_12_24_toggle();
 					S2_READY = 0;
@@ -409,9 +440,7 @@ void main(void)
 
 			case K_DATE_DISP:
 				dmode = M_DATE_DISP;
-
 				button_ready_check();
-
 				if (S1_READY_PRESSED && !S2_PRESSED) {
 					if (S1_LONG) {
 						change_kmode(K_SET_MONTH);
@@ -491,23 +520,30 @@ void main(void)
 				}
 				break;
 
+			// display secret message
+			// pressing left button will exit this mode
+			case K_MESSAGE_DISP:
+				dmode = M_MESSAGE_DISP;
+				button_ready_check();
+				if (S1_READY_PRESSED && !S1_PRESSED && !S2_PRESSED) {
+					change_kmode(K_NORMAL);
+				}
+				break;
+
+			// debug mode; just shows button state (Sx_LONG and Sx_PRESSED)
 			case K_DEBUG:
 				dmode = M_DEBUG;
-
 				button_ready_check();
-
 				if (S2_READY_PRESSED && !S1_PRESSED) {
 					if (S2_LONG && !S2_PRESSED) {
 						change_kmode(K_NORMAL);
 					}
 				}
-
 				if (S1_READY_PRESSED && !S2_PRESSED) {
 					if (S1_LONG && !S1_PRESSED) {
 						change_kmode(K_NORMAL);
 					}
 				}
-
 				break;
 
 			case K_NORMAL:
@@ -558,8 +594,18 @@ void main(void)
 					if (!S2_PRESSED) {
 						change_kmode( K_DEBUG );
 					}
-				}
+				} else
 
+				// both buttons at the same time 
+				if (S2_READY_PRESSED && S2_LONG && S1_READY_PRESSED && S1_LONG) {
+
+					// not really necessary, but message might pop up sooner than intended
+					gp_int1 = 0;
+
+					// reset message display position before switching to message display mode
+					msg_pos = 0;
+					change_kmode( K_MESSAGE_DISP );
+				}
 				break;
 		}
 
@@ -569,52 +615,107 @@ void main(void)
 		// based on current display state of watch, update temporary buffer
 		switch (dmode) {
 
+			// display the secret message
+			case M_MESSAGE_DISP:
+
+				// this will control the speed at which the message will scroll
+				if (gp_int1++ % MSG_SCROLL_SPEED == 0) {
+
+					// unsigned int, so gp_int2 becomes 255 when decrementing 0
+					for (gp_int2=3; gp_int2<4; gp_int2--) {
+
+						// calculate what character from the message goes into what position on the screen
+						disp_buf[3-gp_int2] = (msg_pos > gp_int2) && msg_pos < (msg_len + gp_int2 + 1) ? secret_msg[msg_pos-gp_int2-1] : LED_BLANK;
+					}
+
+					// the message has finished displaying, now what?
+					if (msg_pos > msg_len + 4) {
+						// the message has completed. the screen is blank. now what?
+						// display the message again? Then reset the message position
+						//
+						//msg_pos = 0;
+						//
+						// want to display the message again, but this time let the screen go
+						// to sleep? then set display_show_counter to MSG_SCROLL_SPEED.
+						//
+						//display_show_counter = MSG_SCROLL_SPEED;
+						//
+						// or perhaps just go back to displaying the current time. this feels the most
+						// natural option to me. 
+						change_kmode(K_NORMAL);
+
+						// but should the watch wait the full timeout or do you want the time to disappear
+						// more quickly since the watch has already been on for the length of the message?
+						// here's how you'd cut that timeout value in half
+						//
+						//display_show_counter = display_show_seconds * 5
+					} 
+					else
+
+					// reset the display counter every time through so the full message is displayed
+					// the check against MSG_SCROLL_SPEED is to provide a mechanism to allow the display
+					// to go to sleep during message scroll if you want
+					//if (display_show_counter < MSG_SCROLL_SPEED) {
+						display_show_counter = 0;
+					//}
+
+					// increment the message position
+					msg_pos++;
+				}
+
+				// put on the display whatever is in disp_buf;
+				filldisplay( 0, disp_buf[0], 0);
+				filldisplay( 1, disp_buf[1], 0);
+				filldisplay( 2, disp_buf[2], 0);
+				filldisplay( 3, disp_buf[3], 0);
+				break;
+
 			case M_WEEKDAY_DISP:
 				switch(rtc_table[DS_ADDR_WEEKDAY]) {
 					case 1:
-						day_abbr[0] = LED_S;
-						day_abbr[1] = LED_u;
-						day_abbr[2] = LED_n;
+						disp_buf[1] = LED_S;
+						disp_buf[2] = LED_u;
+						disp_buf[3] = LED_n;
 						break;
 					case 2:
-						day_abbr[0] = LED_M;
-						day_abbr[1] = LED_o;
-						day_abbr[2] = LED_n;
+						disp_buf[1] = LED_M;
+						disp_buf[2] = LED_o;
+						disp_buf[3] = LED_n;
 						break;
 					case 3:
-						day_abbr[0] = LED_t;
-						day_abbr[1] = LED_u;
-						day_abbr[2] = LED_E;
+						disp_buf[1] = LED_t;
+						disp_buf[2] = LED_u;
+						disp_buf[3] = LED_E;
 						break;
 					case 4:
-						day_abbr[0] = LED_W;
-						day_abbr[1] = LED_E;
-						day_abbr[2] = LED_d;
+						disp_buf[1] = LED_W;
+						disp_buf[2] = LED_E;
+						disp_buf[3] = LED_d;
 						break;
 					case 5:
-						day_abbr[0] = LED_t;
-						day_abbr[1] = LED_h;
-						day_abbr[2] = LED_u;
+						disp_buf[1] = LED_t;
+						disp_buf[2] = LED_h;
+						disp_buf[3] = LED_u;
 						break;
 					case 6:
-						day_abbr[0] = LED_F;
-						day_abbr[1] = LED_r;
-						day_abbr[2] = LED_i;
+						disp_buf[1] = LED_F;
+						disp_buf[2] = LED_r;
+						disp_buf[3] = LED_i;
 						break;
 					case 7:
-						day_abbr[0] = LED_S;
-						day_abbr[1] = LED_A;
-						day_abbr[2] = LED_t;
+						disp_buf[1] = LED_S;
+						disp_buf[2] = LED_A;
+						disp_buf[3] = LED_t;
 						break;
 					default:
-						day_abbr[0] = LED_DASH;
-						day_abbr[1] = rtc_table[DS_ADDR_WEEKDAY];
-						day_abbr[2] = LED_DASH;
+						disp_buf[1] = LED_DASH;
+						disp_buf[2] = rtc_table[DS_ADDR_WEEKDAY];
+						disp_buf[3] = LED_DASH;
 						break;
 				}
-				filldisplay( 1, day_abbr[0], 0);
-				filldisplay( 2, day_abbr[1], 0);
-				filldisplay( 3, day_abbr[2], 0);
+				filldisplay( 1, disp_buf[1], 0);
+				filldisplay( 2, disp_buf[2], 0);
+				filldisplay( 3, disp_buf[3], 0);
 				break;
 
 			case M_YEAR_DISP:
@@ -654,12 +755,6 @@ void main(void)
 				break;
 
 			case M_DEBUG:
-				/*
-				filldisplay(0, (display_show_counter / 10000) % 10, 0);
-				filldisplay(1, (display_show_counter / 1000)  % 10, 0);
-				filldisplay(2, (display_show_counter / 100)   % 10, 0);
-				filldisplay(3, (display_show_counter / 10)    % 10, 0);
-				*/
 				filldisplay(1, S1_PRESSED, 0);
 				filldisplay(0, S1_LONG, 0);
 				filldisplay(3, S2_PRESSED, 0);
@@ -670,8 +765,10 @@ void main(void)
 			default:
 				if (!flash_01) {
 					if (!H12_24) {
-						tens_hour = (rtc_table[DS_ADDR_HOUR]>>4)&(DS_MASK_HOUR24_TENS>>4);
-						filldisplay( 0, (tens_hour<1?LED_BLANK:tens_hour), 0);
+
+						// don't display a 0 in the tens position
+						gp_int1 = (rtc_table[DS_ADDR_HOUR]>>4)&(DS_MASK_HOUR24_TENS>>4);
+						filldisplay( 0, (gp_int1<1?LED_BLANK:gp_int1), 0);
 					} else if (H12_TH) {
 						filldisplay( 0, 1, 0);						
 					}
