@@ -267,7 +267,8 @@ void ds_set_day_of_week() {
 	}
 
 	// the meat and potatoes
-	h = q + (13*(m+1))/5 + K + (K/4) + (J/4) + (6 * J);
+	// https://stackoverflow.com/questions/15127615/determining-day-of-the-week-using-zellers-congruence
+	h = q + (13*(m+1))/5 + K + (K/4) + (J/4) + (5*J);
 	h %= 7;
 
 	// in Zeller's congruence Sunday = 0
