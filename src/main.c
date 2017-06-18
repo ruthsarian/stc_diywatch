@@ -613,13 +613,8 @@ void main(void)
 						break;
 				}
 				filldisplay( 1, day_abbr[0], 0);
-				filldisplay( 2, day_abbr[1], 0);	//weekday ( &MASK_UNITS useless, all MSBs are '0')
+				filldisplay( 2, day_abbr[1], 0);
 				filldisplay( 3, day_abbr[2], 0);
-			
-//				filldisplay(1, LED_DASH, 0);
-//				filldisplay(2, rtc_table[DS_ADDR_WEEKDAY], 0);
-//				filldisplay(3, LED_DASH, 0);
-			
 				break;
 
 			case M_YEAR_DISP:
