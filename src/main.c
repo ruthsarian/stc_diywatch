@@ -22,11 +22,8 @@
 unsigned char is_power_down = 0;
 
 // control how often the display is updated
-// HOW THIS WILL WORK:
-//		Every N loops of the display update routine, the display will be updated over the next 4 loops.
-//		The higher this value, the dimmer the LED display will be.
-//		The display routine will execute about every 100 microseconds. 
-#define display_refresh_rate 50
+// the higher the number, the less frequenly it's updated creating a dimmer display.
+#define display_refresh_rate 10
 
 // counter used to maintain which LED to update
 volatile uint8_t display_refresh_counter = 0;
@@ -35,6 +32,7 @@ volatile uint8_t display_refresh_counter = 0;
 uint16_t display_show_counter = 0;
 
 // how many seconds to the display before the MCU goes into power down mode
+// original firmware had it around 3 seconds
 #define display_show_seconds 5
 
 // flag to determine when to display the colon
@@ -75,7 +73,7 @@ typedef enum {
 keyboard_mode_t kmode = K_NORMAL;
 display_mode_t dmode = M_NORMAL;
 
-// button aliases
+// the pin each button is connected to
 #define SW1 P3_3
 #define SW2 P3_1
 
@@ -348,6 +346,11 @@ void main(void)
 			// enable external interrupt
 			EX1 = 1;
 
+			// set clock pins to HIGH
+			// this reduces current draw from ~.75mA to ~.35mA while in powered down mode
+			// need to research this more to fully understand WHY
+			DS_IO = DS_SCLK = DS_CE = 1;
+
 			// go to sleep
 			is_power_down = 1;
 			PCON = 0x02;
@@ -531,7 +534,7 @@ void main(void)
 				break;
 
 			// debug mode; just shows button state (Sx_LONG and Sx_PRESSED)
-			case K_DEBUG:
+/*			case K_DEBUG:
 				dmode = M_DEBUG;
 				button_ready_check();
 				if (S2_READY_PRESSED && !S1_PRESSED) {
@@ -545,7 +548,7 @@ void main(void)
 					}
 				}
 				break;
-
+*/
 			case K_NORMAL:
 			default:
 				dmode = M_NORMAL;
@@ -576,7 +579,7 @@ void main(void)
 				} else
 
 				// ** BUTTON TWO ***
-				if (S2_READY_PRESSED && !S1_PRESSED) {
+/*				if (S2_READY_PRESSED && !S1_PRESSED) {
 
 					// change mode after long button press is released
 					if (S2_LONG && !S2_PRESSED) { 
@@ -595,7 +598,7 @@ void main(void)
 						change_kmode( K_DEBUG );
 					}
 				} else
-
+*/
 				// both buttons at the same time 
 				if (S2_READY_PRESSED && S2_LONG && S1_READY_PRESSED && S1_LONG) {
 
@@ -754,13 +757,13 @@ void main(void)
 				filldisplay(3, LED_r, 0);
 				break;
 
-			case M_DEBUG:
+/*			case M_DEBUG:
 				filldisplay(1, S1_PRESSED, 0);
 				filldisplay(0, S1_LONG, 0);
 				filldisplay(3, S2_PRESSED, 0);
 				filldisplay(2, S2_LONG, 0);
 				break;
-
+*/
 			case M_NORMAL:
 			default:
 				if (!flash_01) {
