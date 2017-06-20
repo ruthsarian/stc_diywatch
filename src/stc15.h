@@ -17,11 +17,7 @@ __sfr __at 0x96 P2M0;
 __sfr __at 0x95 P2M1;
 __sfr __at 0xB2 P3M0;
 __sfr __at 0xB1 P3M1;
-
 __sfr __at 0xC1 WDT_CONTR;
-
-
-
-
+__sfr __at 0x97 CLK_DIV;
 
 #endif
