@@ -15,6 +15,8 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 * Secret scrolling message.
 
 ## Features To Add
+* Improve power consumption.
+* Create low battery alert of some kind.
 * Change display brightness. (low priority; maybe store value in clock ram?)
 
 ## How to Use the Watch
@@ -22,6 +24,12 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 * A long press of the left button will enter the change value mode and is indicated by blinking numbers.
 * The right button is used to increment the value that is blinking. A short press increments by one. Press and hold the button to increment quickly.
 * While displaying the current time, hold both buttons down to display the secret message.
+
+## About Power Consumption
+* This watch operates off a 3 volt CR2032 coin cell battery. Due to this, and the fact that the case is a pain to remove to install a new battery, care must be taken with respect to power consumption.
+* The stock firmware appears to draw about 5 milliamps when displaying the curren time and about 0.3mA when the display is off. That is the goal this firmware should meet (or exceed).
+* Work w/r to power down mode has shown that setting all 3 clock pins high has reduced the powered down mode draw of this firmware from about .7mA to .35mA. Is there more work to do here?
+* When displaying the time, current draw is around 8mA. This can probably be reduced by lowering the clock frequency (via the CLK_DIV register and via the clock set when writing the firmware to the MCU). However rewriting _delay_ms() is required to reflect the new clock speed.
 
 ## Hardware
 
