@@ -2,9 +2,11 @@
 
 **NOTE: This project is in development and not fully tested. Expect bugs.**
 
-This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through [Banggood](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html) and [eBay](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=scm+diy+led+watch+kit&_sop=15)). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
+This is a firmware replacement for the [STC15L204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through [Banggood](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html) and [eBay](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=scm+diy+led+watch+kit&_sop=15)). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
 
 ![Image of Banggood SKU 206204](https://img3.banggood.com/thumb/view/2014/xiemeijuan/05/SKU206204/SKU206204a.jpg)
+
+The STC15L204EA is the 3 volt version of the STC15F204EA which runs on 5 volts.
 
 ## Features
 * Display for 5 seconds, then go into power down mode until the left button is pressed. This helps preserve battery power.
@@ -33,7 +35,7 @@ This is a firmware replacement for the [STC15F204EA](http://www.stcmicro.com/dat
 
 ## Hardware
 
-* DIY LED Digital Watch Kit, based on STC15F204EA and DS1302, e.g. [Banggood SKU 206204](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html)
+* DIY LED Digital Watch Kit, based on STC15L204EA and DS1302, e.g. [Banggood SKU 206204](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html)
 * Connected to PC via cheap USB-UART adapter, e.g. CP2102, CH340G. [Banggood: CP2102 USB-UART adapter](http://www.banggood.com/CJMCU-CP2102-USB-To-TTLSerial-Module-UART-STC-Downloader-p-970993.html?p=WX0407753399201409DA)
 
 ## Connection
@@ -91,7 +93,7 @@ As the original firmware loaded on an STC MCU cannot be downloaded or backed up,
 
 ## References
 * [Jen Jensen's stc_diyclock project](https://github.com/zerog2k/stc_diyclock)
-* [STC15F204EA datasheet](http://www.stcmcu.com/datasheet/stc/stc-ad-pdf/stc15f204ea-series-english.pdf)
+* [STC15L204EA datasheet](http://www.stcmcu.com/datasheet/stc/stc-ad-pdf/stc15f204ea-series-english.pdf)
 * [Maxim DS1302 datasheet](http://datasheets.maximintegrated.com/en/ds/DS1302.pdf)
 * [sdcc user guide](http://sdcc.sourceforge.net/doc/sdccman.pdf)
 * [stcgal](https://github.com/grigorig/stcgal)
