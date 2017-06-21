@@ -16,11 +16,6 @@
 // create a 'function' to clear the watchdog timer
 #define WDT_CLEAR();	(WDT_CONTR |= 1 << 4)
 
-// flag to let us know whether or not the MCU is powered down
-// needed in case there are INT events while the MCU is not powered down
-// ?? given that we're enabling/disabling the interrupt with every sleep/wakeup cycle, is this variable really needed ??
-unsigned char is_power_down = 0;
-
 // control how often the display is updated
 // the higher the number, the less frequenly it's updated creating a dimmer display.
 #define display_refresh_rate 10
@@ -241,9 +236,7 @@ void timer0_isr() __interrupt (1) __using (1)
 // INT0 = interrupt 0; Timer0 = interrupt 1; INT1 = interrupt 2;
 void INT1_routine(void) __interrupt (2) 
 {
-	if (is_power_down) {
-		is_power_down = 0;
-	}
+	while (!SW1);
 }
 
 // when entering new mode need to wait for previous button press to be released. 
@@ -341,7 +334,8 @@ void main(void)
 			// clear display
 			clearTmpDisplay();
 			updateTmpDisplay();
-			_delay_ms(10);
+			//_delay_ms(10);	// give the display refresh timer a chance to clear the display
+			P3 &= 0x0F;
 
 			// enable external interrupt
 			EX1 = 1;
@@ -349,10 +343,17 @@ void main(void)
 			// set clock pins to HIGH
 			// this reduces current draw from ~.75mA to ~.35mA while in powered down mode
 			// need to research this more to fully understand WHY
-			DS_IO = DS_SCLK = DS_CE = 1;
+			//DS_IO = DS_SCLK = DS_CE = 1;
+
+			// set DS1302 pins to high impedance mode
+			// P0_0, P0_1, P3_2
+			// this reduces current draw to ~.30mA in PDM!
+			P0M1 |= 0x03;
+			P3M1 |= 0x04;
+
+			// only DS_IO is read from, DS_CE and DS_SCLK are basically output-only.
 
 			// go to sleep
-			is_power_down = 1;
 			PCON = 0x02;
 
 			// wakeup; NOPs required per MCU datasheet for returning from power down mode
@@ -363,6 +364,10 @@ void main(void)
 
 			// disable external interrupt; so we can use it as a regular button
 			EX1 = 0;
+
+			// set DS1302 pins to quasi-bidirectional mode
+			P0M1 &= 0xFC;
+			P3M1 &= 0xFB;
 
 			// this seems to prevent coming out of sleep and going right into
 			// display date mode. 
