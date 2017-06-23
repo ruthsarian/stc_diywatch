@@ -120,6 +120,9 @@ void ds_writebyte(uint8_t addr, uint8_t data);
 // clear WP, CH
 void ds_init();
 
+// set CH
+void ds_halt();
+
 // reset date/time to 01/01 00:00
 void ds_reset_clock();
 

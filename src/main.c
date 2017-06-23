@@ -351,10 +351,8 @@ void main(void)
 			P0M1 |= 0x03;
 			P3M1 |= 0x04;
 
-			// only DS_IO is read from, DS_CE and DS_SCLK are basically output-only.
-
 			// go to sleep
-			PCON = 0x02;
+			PCON |= 0x02;
 
 			// wakeup; NOPs required per MCU datasheet for returning from power down mode
 			_nop_();
@@ -366,7 +364,9 @@ void main(void)
 			EX1 = 0;
 
 			// set DS1302 pins to quasi-bidirectional mode
+			//P0M0 &= 0xFC;
 			P0M1 &= 0xFC;
+			//P3M0 &= 0xFB;
 			P3M1 &= 0xFB;
 
 			// this seems to prevent coming out of sleep and going right into

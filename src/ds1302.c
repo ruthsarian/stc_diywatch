@@ -136,6 +136,13 @@ void ds_init() {
     ds_writebyte(DS_ADDR_SECONDS, b); // clear CH
 }
 
+void ds_halt() {
+	uint8_t b = 0x80; // ds_readbyte(DS_ADDR_SECONDS);
+//	b = 0x80
+    rtc_table[DS_ADDR_SECONDS]=0;
+	ds_writebyte(DS_ADDR_SECONDS, b); // set CH
+}
+
 // reset date, time
 void ds_reset_clock() {
     ds_writebyte(DS_ADDR_MINUTES, 0x00);
