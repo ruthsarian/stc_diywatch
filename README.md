@@ -1,5 +1,7 @@
 # STC DIY Watch Kit Firmware
 
+# Power Modification Branch
+
 **NOTE: This project is in development and not fully tested. Expect bugs.**
 
 This is a firmware replacement for the [STC15L204EA](http://www.stcmicro.com/datasheet/STC15F204EA-en.pdf) based DIY LED watch kit (available through [Banggood](https://www.banggood.com/LED-Digital-Watch-Electronic-Clock-Kit-With-Transparent-Cover-p-976634.html) and [eBay](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=scm+diy+led+watch+kit&_sop=15)). It uses [sdcc](http://sdcc.sf.net) to build and [stcgal](https://github.com/grigorig/stcgal) to flash the firmware.
@@ -31,7 +33,7 @@ The STC15L204EA is the 3 volt version of the STC15F204EA which runs on 5 volts.
 This watch operates off a 3 volt CR2032 coin cell battery. Due to this, and the fact that the case is a pain to remove to install a new battery, power consumption is a concern. The stock firmware appears to draw about 5 milliamps (mA) when the display is on and about 350 microamps (uA) when the display is off. This firmware currently draws about 8mA when the display is on and about 300uA when the display is off. Assuming a fresh CR2032 has about 200 milliamp hours (mAh), the battery, if the watch is left off, will last about a month. Display consumption can be reduced further by slowing the clock of the microcontroller (via the CLK_DIV register). This can yield about 2mA savings with the display on, but further work is needed.
 
 ## Power Modification, Part 1 - Remove the 3 10k Resistors
-To maximize battery life, power consumption with the display off needs to be reduced as much as possible. This watch kit includes 3 10k pull-up resistors connected to the DS1302. These three pins have 40k pull-down resistors to ground. This is where the majority of the 300uA is being consumed with the display off. To remove this constant power drain, remove (or don't install) the three 10k resistors. To compensate, the 3 DS1302 pins need to be changed to push-pull output in the firmware. The end result is power consumption with the display off is reduced to around 50uA. This should result in a battery life closer to 5 months! The code for this modification will be added to the power branch of this repository.
+To maximize battery life, power consumption with the display off needs to be reduced as much as possible. This watch kit includes 3 10k pull-up resistors connected to the DS1302. These three pins have 40k pull-down resistors to ground. This is where the majority of the 300uA is being consumed with the display off. To remove this constant power drain, remove (or don't install) the three 10k resistors. To compensate, the 3 DS1302 pins need to be changed to push-pull output in the firmware. The end result is power consumption with the display off is reduced to around 50uA. This should result in a battery life closer to 5 months!
 
 ## Power Modification, Part 2 - Cut Traces and Add a Diode
 The DS1302 has a low-power mode that it will enter when power to VCC2 (pin 1) is removed. In this mode the DS1302 draws nanoamps. Unfortunately this kit has both VCC2 and VCC1 (pin 8) tied together, leaving the DS1302 into normal operating mode even while the display is off, drawing up to several hundred microamps (but in practice, measured to be around 50uA). 
@@ -42,7 +44,7 @@ To achieve this, two traces must be cut. First is to cut the trace that comes fr
 
 To bring power back to VCC1, a diode should be used to connect the battery to pin 8 of the DS1302. The diode is used instead of jumper wire because VCC2 nees to be at a higher voltage than VCC1 for the DS1302 to switch to VCC2 power and return to normal operation. The diode will provide a 0.6v drop, putting VCC2 at a slightly higher voltage than VCC1 when VCC2 is powered.
 
-The firmware then needs to be modified to put port 3.0 into push-pull output mode and then set it to logic 1. The firmware then needs to change it to a logic 0 just before going into power down mode. The code for this modification will be added to the power branch of this repository.
+The firmware then needs to be modified to put port 3.0 into push-pull output mode and then set it to logic 1. The firmware then needs to change it to a logic 0 just before going into power down mode.
 
 **NOTE: The power modification is a work in progress and unproven.** 
 
