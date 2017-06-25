@@ -16,6 +16,9 @@
 // create a 'function' to clear the watchdog timer
 #define WDT_CLEAR();	(WDT_CONTR |= 1 << 4)
 
+// VCC2 on the DS1302 wired to the MCU pin 3.0
+#define DS_PWR  P3_0
+
 // control how often the display is updated
 // the higher the number, the less frequenly it's updated creating a dimmer display.
 #define display_refresh_rate 10
@@ -95,7 +98,6 @@ uint8_t secret_msg[] = {
 	LED_r,
 	LED_u,
 	LED_t,
-	LED_h,
 	LED_S,
 	LED_A,
 	LED_r,
@@ -145,6 +147,18 @@ void sys_init(void)
 	// LED segments should be set to quasi-bidirectional to sink the current
 	// P1M0 = 0x00;		// default value after power-on or reset
 	// P1M1 = 0x00;		// default value after power-on or reset
+
+	// set DS1302 pins to push-pull
+	P0M0 |= 0x03;
+	P3M0 |= 0x04;
+	// P0M1 &= 0xFC;
+	// P3M1 &= 0xFB;
+
+	// set P3.0 to push-pull for powering the DS1302
+	P3M0 |= 0x01;
+
+	// power the DS1302
+	DS_PWR = 1;
 
 	// clock initialization
 	ds_init();
@@ -337,6 +351,9 @@ void main(void)
 			//_delay_ms(10);	// give the display refresh timer a chance to clear the display
 			P3 &= 0x0F;
 
+			// put all segments low
+			P1 = 0x00;
+
 			// enable external interrupt
 			EX1 = 1;
 
@@ -344,12 +361,18 @@ void main(void)
 			// this reduces current draw from ~.75mA to ~.35mA while in powered down mode
 			// need to research this more to fully understand WHY
 			//DS_IO = DS_SCLK = DS_CE = 1;
+			//DS_IO = DS_SCLK = DS_CE = 0;
 
 			// set DS1302 pins to high impedance mode
 			// P0_0, P0_1, P3_2
 			// this reduces current draw to ~.30mA in PDM!
+			P0M0 &= 0xFC;
 			P0M1 |= 0x03;
+			P3M0 &= 0xFB;
 			P3M1 |= 0x04;
+
+			// cut power to the DS1302
+			DS_PWR = 0;
 
 			// go to sleep
 			PCON |= 0x02;
@@ -363,10 +386,13 @@ void main(void)
 			// disable external interrupt; so we can use it as a regular button
 			EX1 = 0;
 
-			// set DS1302 pins to quasi-bidirectional mode
-			//P0M0 &= 0xFC;
+			// power the DS1302
+			DS_PWR = 1;
+
+			// set DS1302 pins to push-pull
+			P0M0 |= 0x03;
 			P0M1 &= 0xFC;
-			//P3M0 &= 0xFB;
+			P3M0 |= 0x04;
 			P3M1 &= 0xFB;
 
 			// this seems to prevent coming out of sleep and going right into
