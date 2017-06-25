@@ -23,6 +23,7 @@
 #define LED_W		0x1C
 #define LED_L		0x1D
 #define LED_i		0x1E
+#define LED_AP		0x1F
 
 const uint8_t __at (0x1000) ledtable[] 
 = {
@@ -60,6 +61,7 @@ const uint8_t __at (0x1000) ledtable[]
 	0b11010101, // 0x1C - 'W'
 	0b11000111, // 0x1D - 'L'
 	0b11111011, // 0x1E - 'i'
+	0b11011111  // 0x1f - '''
 };
 
 uint8_t	dbuf[4];
